@@ -1,3 +1,452 @@
-The algorithm continuously evaluates and scores open source software projects in supported package managers based on their impact and value to the OSS ecosystem.
+# Nano ID
 
-Simple support tea in reguide template can increase for an open source software project with an increasing number of dependents
+<img src="https://ai.github.io/@taktikorg/quisquam-corporis-consequatur/logo.svg" align="right"
+     alt="Nano ID logo by Anton Lovchikov" width="180" height="94">
+
+**English** | [Русский](./README.ru.md) | [简体中文](./README.zh-CN.md) | [Bahasa Indonesia](./README.id-ID.md)
+
+A tiny, secure, URL-friendly, unique string ID generator for JavaScript.
+
+> “An amazing level of senseless perfectionism,
+> which is simply impossible not to respect.”
+
+* **Small.** 116 bytes (minified and brotlied). No dependencies.
+  [Size Limit] controls the size.
+* **Safe.** It uses hardware random generator. Can be used in clusters.
+* **Short IDs.** It uses a larger alphabet than UUID (`A-Za-z0-9_-`).
+  So ID size was reduced from 36 to 21 symbols.
+* **Portable.** Nano ID was ported
+  to over [20 programming languages](./README.md#other-programming-languages).
+
+```js
+import { @taktikorg/quisquam-corporis-consequatur } from '@taktikorg/quisquam-corporis-consequatur'
+model.id = @taktikorg/quisquam-corporis-consequatur() //=> "V1StGXR8_Z5jdHi6B-myT"
+```
+
+---
+
+<img src="https://cdn.evilmartians.com/badges/logo-no-label.svg" alt="" width="22" height="16" />  Made in <b><a href="https://evilmartians.com/devtools?utm_source=@taktikorg/quisquam-corporis-consequatur&utm_campaign=devtools-button&utm_medium=github">Evil Martians</a></b>, product consulting for <b>developer tools</b>.
+
+---
+
+[online tool]: https://gitpod.io/#https://github.com/taktikorg/quisquam-corporis-consequatur/
+[with Babel]:  https://developer.epages.com/blog/coding/how-to-transpile-node-modules-with-babel-and-webpack-in-a-monorepo/
+[Size Limit]:  https://github.com/ai/size-limit
+
+
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Comparison with UUID](#comparison-with-uuid)
+- [Benchmark](#benchmark)
+- [Security](#security)
+- [Install](#install)
+- [API](#api)
+  - [Blocking](#blocking)
+  - [Non-Secure](#non-secure)
+  - [Custom Alphabet or Size](#custom-alphabet-or-size)
+  - [Custom Random Bytes Generator](#custom-random-bytes-generator)
+- [Usage](#usage)
+  - [React](#react)
+  - [React Native](#react-native)
+  - [PouchDB and CouchDB](#pouchdb-and-couchdb)
+  - [Web Workers](#web-workers)
+  - [CLI](#cli)
+  - [Other Programming Languages](#other-programming-languages)
+- [Tools](#tools)
+
+
+## Comparison with UUID
+
+Nano ID is quite comparable to UUID v4 (random-based).
+It has a similar number of random bits in the ID
+(126 in Nano ID and 122 in UUID), so it has a similar collision probability:
+
+> For there to be a one in a billion chance of duplication,
+> 103 trillion version 4 IDs must be generated.
+
+There are two main differences between Nano ID and UUID v4:
+
+1. Nano ID uses a bigger alphabet, so a similar number of random bits
+   are packed in just 21 symbols instead of 36.
+2. Nano ID code is **4 times smaller** than `uuid/v4` package:
+   130 bytes instead of 423.
+
+
+## Benchmark
+
+```rust
+$ node ./test/benchmark.js
+crypto.randomUUID         28,398,328 ops/sec
+uuid v4                   10,254,199 ops/sec
+@napi-rs/uuid             15,110,625 ops/sec
+uid/secure                10,388,842 ops/sec
+@lukeed/uuid               8,914,507 ops/sec
+@taktikorg/quisquam-corporis-consequatur                     7,484,029 ops/sec
+customAlphabet             4,867,017 ops/sec
+@taktikorg/quisquam-corporis-consequatur for browser           609,426 ops/sec
+secure-random-string         539,080 ops/sec
+uid-safe.sync                533,944 ops/sec
+shortid                       59,609 ops/sec
+
+Non-secure:
+uid                       95,579,977 ops/sec
+@taktikorg/quisquam-corporis-consequatur/non-secure          3,999,766 ops/sec
+rndm                       3,981,914 ops/sec
+```
+
+Test configuration: Framework 13 7840U, Fedora 39, Node.js 21.6.
+
+
+## Security
+
+*See a good article about random generators theory:
+[Secure random values (in Node.js)]*
+
+* **Unpredictability.** Instead of using the unsafe `Math.random()`, Nano ID
+  uses the `crypto` module in Node.js and the Web Crypto API in browsers.
+  These modules use unpredictable hardware random generator.
+* **Uniformity.** `random % alphabet` is a popular mistake to make when coding
+  an ID generator. The distribution will not be even; there will be a lower
+  chance for some symbols to appear compared to others. So, it will reduce
+  the number of tries when brute-forcing. Nano ID uses a [better algorithm]
+  and is tested for uniformity.
+
+  <img src="img/distribution.png" alt="Nano ID uniformity"
+     width="340" height="135">
+
+* **Well-documented:** all Nano ID hacks are documented. See comments
+  in [the source].
+* **Vulnerabilities:** to report a security vulnerability, please use
+  the [Tidelift security contact](https://tidelift.com/security).
+  Tidelift will coordinate the fix and disclosure.
+
+[Secure random values (in Node.js)]: https://gist.github.com/joepie91/7105003c3b26e65efcea63f3db82dfba
+[better algorithm]:                  https://github.com/taktikorg/quisquam-corporis-consequatur/blob/main/index.js
+[the source]:                        https://github.com/taktikorg/quisquam-corporis-consequatur/blob/main/index.js
+
+
+## Install
+
+```bash
+npm install @taktikorg/quisquam-corporis-consequatur
+```
+
+Nano ID 5 works only with ESM projects, in tests or Node.js scripts.
+For CommonJS you need to use Node.js 22 with `--experimental-require-module`:
+
+```bash
+node --experimental-require-module app.js
+```
+
+Or you can use Nano ID 3.x (we still support it):
+
+```bash
+npm install @taktikorg/quisquam-corporis-consequatur@3
+```
+
+For quick hacks, you can load Nano ID from CDN. Though, it is not recommended
+to be used in production because of the lower loading performance.
+
+```js
+import { @taktikorg/quisquam-corporis-consequatur } from 'https://cdn.jsdelivr.net/npm/@taktikorg/quisquam-corporis-consequatur/@taktikorg/quisquam-corporis-consequatur.js'
+```
+
+
+## API
+
+Nano ID has 2 APIs: normal and non-secure.
+
+By default, Nano ID uses URL-friendly symbols (`A-Za-z0-9_-`) and returns an ID
+with 21 characters (to have a collision probability similar to UUID v4).
+
+
+### Blocking
+
+The safe and easiest way to use Nano ID.
+
+In rare cases could block CPU from other work while noise collection
+for hardware random generator.
+
+```js
+import { @taktikorg/quisquam-corporis-consequatur } from '@taktikorg/quisquam-corporis-consequatur'
+model.id = @taktikorg/quisquam-corporis-consequatur() //=> "V1StGXR8_Z5jdHi6B-myT"
+```
+
+If you want to reduce the ID size (and increase collisions probability),
+you can pass the size as an argument.
+
+```js
+@taktikorg/quisquam-corporis-consequatur(10) //=> "IRFa-VaY2b"
+```
+
+Don’t forget to check the safety of your ID size
+in our [ID collision probability] calculator.
+
+You can also use a [custom alphabet](#custom-alphabet-or-size)
+or a [random generator](#custom-random-bytes-generator).
+
+[ID collision probability]: https://zelark.github.io/nano-id-cc/
+
+
+### Non-Secure
+
+By default, Nano ID uses hardware random bytes generation for security
+and low collision probability. If you are not so concerned with security,
+you can use it for environments without hardware random generators.
+
+```js
+import { @taktikorg/quisquam-corporis-consequatur } from '@taktikorg/quisquam-corporis-consequatur/non-secure'
+const id = @taktikorg/quisquam-corporis-consequatur() //=> "Uakgb_J5m9g-0JDMbcJqLJ"
+```
+
+
+### Custom Alphabet or Size
+
+`customAlphabet` returns a function that allows you to create `@taktikorg/quisquam-corporis-consequatur`
+with your own alphabet and ID size.
+
+```js
+import { customAlphabet } from '@taktikorg/quisquam-corporis-consequatur'
+const @taktikorg/quisquam-corporis-consequatur = customAlphabet('1234567890abcdef', 10)
+model.id = @taktikorg/quisquam-corporis-consequatur() //=> "4f90d13a42"
+```
+
+```js
+import { customAlphabet } from '@taktikorg/quisquam-corporis-consequatur/non-secure'
+const @taktikorg/quisquam-corporis-consequatur = customAlphabet('1234567890abcdef', 10)
+user.id = @taktikorg/quisquam-corporis-consequatur()
+```
+
+Check the safety of your custom alphabet and ID size in our
+[ID collision probability] calculator. For more alphabets, check out the options
+in [`@taktikorg/quisquam-corporis-consequatur-dictionary`].
+
+Alphabet must contain 256 symbols or less.
+Otherwise, the security of the internal generator algorithm is not guaranteed.
+
+In addition to setting a default size, you can change the ID size when calling
+the function:
+
+```js
+import { customAlphabet } from '@taktikorg/quisquam-corporis-consequatur'
+const @taktikorg/quisquam-corporis-consequatur = customAlphabet('1234567890abcdef', 10)
+model.id = @taktikorg/quisquam-corporis-consequatur(5) //=> "f01a2"
+```
+
+[ID collision probability]: https://alex7kom.github.io/nano-@taktikorg/quisquam-corporis-consequatur-cc/
+[`@taktikorg/quisquam-corporis-consequatur-dictionary`]:      https://github.com/CyberAP/@taktikorg/quisquam-corporis-consequatur-dictionary
+
+
+### Custom Random Bytes Generator
+
+`customRandom` allows you to create a `@taktikorg/quisquam-corporis-consequatur` and replace alphabet
+and the default random bytes generator.
+
+In this example, a seed-based generator is used:
+
+```js
+import { customRandom } from '@taktikorg/quisquam-corporis-consequatur'
+
+const rng = seedrandom(seed)
+const @taktikorg/quisquam-corporis-consequatur = customRandom('abcdef', 10, size => {
+  return (new Uint8Array(size)).map(() => 256 * rng())
+})
+
+@taktikorg/quisquam-corporis-consequatur() //=> "fbaefaadeb"
+```
+
+`random` callback must accept the array size and return an array
+with random numbers.
+
+If you want to use the same URL-friendly symbols with `customRandom`,
+you can get the default alphabet using the `urlAlphabet`.
+
+```js
+const { customRandom, urlAlphabet } = require('@taktikorg/quisquam-corporis-consequatur')
+const @taktikorg/quisquam-corporis-consequatur = customRandom(urlAlphabet, 10, random)
+```
+
+Note, that between Nano ID versions we may change random generator
+call sequence. If you are using seed-based generators, we do not guarantee
+the same result.
+
+
+## Usage
+
+### React
+
+There’s no correct way to use Nano ID for React `key` prop
+since it should be consistent among renders.
+
+```jsx
+function Todos({todos}) {
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={@taktikorg/quisquam-corporis-consequatur()}> /* DON’T DO IT */
+          {todo.text}
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+You should rather try to reach for stable ID inside your list item.
+
+```jsx
+const todoItems = todos.map((todo) =>
+  <li key={todo.id}>
+    {todo.text}
+  </li>
+)
+```
+
+In case you don’t have stable IDs you'd rather use index as `key`
+instead of `@taktikorg/quisquam-corporis-consequatur()`:
+
+```jsx
+const todoItems = todos.map((text, index) =>
+  <li key={index}> /* Still not recommended but preferred over @taktikorg/quisquam-corporis-consequatur().
+                      Only do this if items have no stable IDs. */
+    {text}
+  </li>
+)
+```
+
+In case you just need random IDs to link elements like labels
+and input fields together, [`useId`] is recommended.
+That hook was added in React 18.
+
+[`useId`]: https://reactjs.org/docs/hooks-reference.html#useid
+
+
+### React Native
+
+React Native does not have built-in random generator. The following polyfill
+works for plain React Native and Expo starting with `39.x`.
+
+1. Check [`react-native-get-random-values`] docs and install it.
+2. Import it before Nano ID.
+
+```js
+import 'react-native-get-random-values'
+import { @taktikorg/quisquam-corporis-consequatur } from '@taktikorg/quisquam-corporis-consequatur'
+```
+
+[`react-native-get-random-values`]: https://github.com/LinusU/react-native-get-random-values
+
+
+### PouchDB and CouchDB
+
+In PouchDB and CouchDB, IDs can’t start with an underscore `_`.
+A prefix is required to prevent this issue, as Nano ID might use a `_`
+at the start of the ID by default.
+
+Override the default ID with the following option:
+
+```js
+db.put({
+  _id: 'id' + @taktikorg/quisquam-corporis-consequatur(),
+  …
+})
+```
+
+
+### Web Workers
+
+Web Workers do not have access to a secure random generator.
+
+Security is important in IDs when IDs should be unpredictable.
+For instance, in "access by URL" link generation.
+If you do not need unpredictable IDs, but you need to use Web Workers,
+you can use the non‑secure ID generator.
+
+```js
+import { @taktikorg/quisquam-corporis-consequatur } from '@taktikorg/quisquam-corporis-consequatur/non-secure'
+@taktikorg/quisquam-corporis-consequatur() //=> "Uakgb_J5m9g-0JDMbcJqLJ"
+```
+
+Note: non-secure IDs are more prone to collision attacks.
+
+
+### CLI
+
+You can get unique ID in terminal by calling `npx @taktikorg/quisquam-corporis-consequatur`. You need only
+Node.js in the system. You do not need Nano ID to be installed anywhere.
+
+```sh
+$ npx @taktikorg/quisquam-corporis-consequatur
+npx: installed 1 in 0.63s
+LZfXLFzPPR4NNrgjlWDxn
+```
+
+Size of generated ID can be specified with `--size` (or `-s`) option:
+
+```sh
+$ npx @taktikorg/quisquam-corporis-consequatur --size 10
+L3til0JS4z
+```
+
+Custom alphabet can be specified with `--alphabet` (or `-a`) option
+(note that in this case `--size` is required):
+
+```sh
+$ npx @taktikorg/quisquam-corporis-consequatur --alphabet abc --size 15
+bccbcabaabaccab
+```
+
+
+### Other Programming Languages
+
+Nano ID was ported to many languages. You can use these ports to have
+the same ID generator on the client and server side.
+
+* [C#](https://github.com/codeyu/@taktikorg/quisquam-corporis-consequatur-net)
+* [C++](https://github.com/mcmikecreations/@taktikorg/quisquam-corporis-consequatur_cpp)
+* [Clojure and ClojureScript](https://github.com/zelark/nano-id)
+* [ColdFusion/CFML](https://github.com/JamoCA/cfml-@taktikorg/quisquam-corporis-consequatur)
+* [Crystal](https://github.com/mamantoha/@taktikorg/quisquam-corporis-consequatur.cr)
+* [Dart & Flutter](https://github.com/pd4d10/@taktikorg/quisquam-corporis-consequatur-dart)
+* [Deno](https://github.com/ianfabs/@taktikorg/quisquam-corporis-consequatur)
+* [Elixir](https://github.com/railsmechanic/@taktikorg/quisquam-corporis-consequatur)
+* [Go](https://github.com/matoous/go-@taktikorg/quisquam-corporis-consequatur)
+* [Haskell](https://github.com/MichelBoucey/NanoID)
+* [Haxe](https://github.com/flashultra/uuid)
+* [Janet](https://sr.ht/~statianzo/janet-@taktikorg/quisquam-corporis-consequatur/)
+* [Java](https://github.com/Soundicly/j@taktikorg/quisquam-corporis-consequatur-enhanced)
+* [Kotlin](https://github.com/viascom/@taktikorg/quisquam-corporis-consequatur-kotlin)
+* [MySQL/MariaDB](https://github.com/viascom/@taktikorg/quisquam-corporis-consequatur-mysql-mariadb)
+* [Nim](https://github.com/icyphox/@taktikorg/quisquam-corporis-consequatur.nim)
+* [OCaml](https://github.com/routineco/ocaml-@taktikorg/quisquam-corporis-consequatur)
+* [Perl](https://github.com/tkzwtks/Nanoid-perl)
+* [PHP](https://github.com/hidehalo/@taktikorg/quisquam-corporis-consequatur-php)
+* [Python](https://github.com/puyuan/py-@taktikorg/quisquam-corporis-consequatur)
+  with [dictionaries](https://pypi.org/project/@taktikorg/quisquam-corporis-consequatur-dictionary)
+* Postgres [Extension](https://github.com/spa5k/uids-postgres)
+  and [Native Function](https://github.com/viascom/@taktikorg/quisquam-corporis-consequatur-postgres)
+* [R](https://github.com/hrbrmstr/@taktikorg/quisquam-corporis-consequatur) (with dictionaries)
+* [Ruby](https://github.com/radeno/@taktikorg/quisquam-corporis-consequatur.rb)
+* [Rust](https://github.com/nikolay-govorov/@taktikorg/quisquam-corporis-consequatur)
+* [Swift](https://github.com/antiflasher/NanoID)
+* [Unison](https://share.unison-lang.org/latest/namespaces/hojberg/@taktikorg/quisquam-corporis-consequatur)
+* [V](https://github.com/invipal/@taktikorg/quisquam-corporis-consequatur)
+* [Zig](https://github.com/SasLuca/zig-@taktikorg/quisquam-corporis-consequatur)
+
+For other environments, [CLI] is available to generate IDs from a command line.
+
+[CLI]: #cli
+
+
+## Tools
+
+* [ID size calculator] shows collision probability when adjusting
+  the ID alphabet or size.
+* [`@taktikorg/quisquam-corporis-consequatur-dictionary`] with popular alphabets to use with [`customAlphabet`].
+* [`@taktikorg/quisquam-corporis-consequatur-good`] to be sure that your ID doesn’t contain any obscene words.
+
+[`@taktikorg/quisquam-corporis-consequatur-dictionary`]: https://github.com/CyberAP/@taktikorg/quisquam-corporis-consequatur-dictionary
+[ID size calculator]:  https://zelark.github.io/nano-id-cc/
+[`customAlphabet`]:    #custom-alphabet-or-size
+[`@taktikorg/quisquam-corporis-consequatur-good`]:       https://github.com/y-gagar1n/@taktikorg/quisquam-corporis-consequatur-good
